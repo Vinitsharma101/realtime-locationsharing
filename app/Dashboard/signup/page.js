@@ -5,10 +5,13 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createUserWithEmailAndPassword } from "firebase/auth"
-import { auth } from "@/lib/firebaseconfig"
+import { auth, db } from "@/lib/firebaseconfig"
 import { MapPin, Eye, EyeOff, Loader2 } from "lucide-react"
 
+import { doc, setDoc } from "firebase/firestore";
+
 export default function SignupPage() {
+    const [username, setusername] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
@@ -36,8 +39,16 @@ export default function SignupPage() {
         setLoading(true)
 
         try {
-            await createUserWithEmailAndPassword(auth, email, password)
-            router.push("/dashboard")
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+
+            await setDoc(doc(db, "users", user.uid), {
+                name: username, // make sure 'name' is coming from your input
+                email: user.email
+            });
+
+            router.push("/Home")
         } catch (error) {
             console.error("Signup error:", error)
 
@@ -125,6 +136,20 @@ export default function SignupPage() {
                                     </motion.div>
                                 )}
 
+                                <div className="space-y-2">
+                                    <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                                        Name
+                                    </label>
+                                    <input
+                                        id="username"
+                                        type="text"
+                                        placeholder="Enter your name"
+                                        value={username}
+                                        onChange={(e) => setusername(e.target.value)}
+                                        required
+                                        className="w-full h-12 px-3 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                </div>
                                 <div className="space-y-2">
                                     <label htmlFor="email" className="text-sm font-medium text-gray-700">
                                         Email

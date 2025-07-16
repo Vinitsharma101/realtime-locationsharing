@@ -8,12 +8,12 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebaseconfig";
 
 export default function ProfileSection({
-    userName = "John Doe",
+    userName,
     userAvatar,
     onConnectShare,
     onSavedLocations,
     onSettings,
-    onLogout,
+    onLocationHistory,
     onProfileClick,
 }) {
     const router = useRouter();
@@ -40,7 +40,7 @@ export default function ProfileSection({
             id: "history",
             label: "Location History",
             icon: Clock,
-            onClick: () => console.log("Location History clicked"),
+            onClick: onLocationHistory,
             color: "text-purple-600",
             hoverColor: "hover:bg-purple-50",
         },
@@ -163,7 +163,7 @@ export default function ProfileSection({
                         onClick={item.onClick}
                         whileHover={{ scale: 1.02, x: 4 }}
                         whileTap={{ scale: 0.98 }}
-                        className={`w-full flex items-center space-x-3 p-4 rounded-xl border border-gray-100 bg-white transition-all duration-200 ${item.hoverColor} hover:border-gray-200 hover:shadow-sm group`}
+                        className={`w-full flex items-center space-x-3 p-4 rounded-xl border border-gray-100 bg-white transition-all duration-200 ${item.hoverColor} hover:border-gray-400 hover:shadow-sm group`}
                     >
                         <div className={`p-2 rounded-lg bg-gray-50 group-hover:bg-white transition-colors duration-200`}>
                             <item.icon className={`w-5 h-5 ${item.color}`} />
