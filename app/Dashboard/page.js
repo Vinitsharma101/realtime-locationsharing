@@ -23,7 +23,7 @@ export default function LandingPage() {
                     </div>
                     <div className="flex items-center space-x-4">
                         <Link href="/Dashboard/login">
-                            <Button variant="ghost" className="text-gray-700 hover:text-blue-600">
+                            <Button variant="ghost" className="text-gray-700 hover:text-blue-600 bg-slate-600">
                                 Sign In/Sign Up
                             </Button>
                         </Link>

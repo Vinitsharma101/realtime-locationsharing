@@ -18,7 +18,6 @@ export default function Home() {
     const router = useRouter();
     const [username, setUsername] = useState("");
 
-    
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -33,17 +32,18 @@ export default function Home() {
     }, []);
 
     const handleConnectShare = () => {
+        console.log("Connect/Share Location clicked")
+        // Implement your location sharing logic here
     }
 
     const handleSavedLocations = () => {
-    }
-
-    const handleLocationHistory = () => {
-        router.push("/Home/LocHistory");
-
+        console.log("Saved Locations clicked")
+        // Navigate to saved locations view
     }
 
     const handleSettings = () => {
+        console.log("Settings clicked")
+        // Open settings modal or navigate to settings page
         router.push("/Home/settings");
     }
 
@@ -58,12 +58,14 @@ export default function Home() {
 
     const handleProfileClick = () => {
         console.log("Profile clicked")
-    // Handle profile dropdown toggle
-      }
+        // Handle profile dropdown toggle
+    }
     const mapRef = useRef(null);
     const markersRef = useRef({}); // Store markers by socket id
 
     useEffect(() => {
+
+
         let leaflet;
         let markerShadow, L;
 
@@ -118,7 +120,9 @@ export default function Home() {
                     iconSize: [40, 40],
                     iconAnchor: [20, 40],
                     popupAnchor: [0, -40],
-                    
+                    // shadowUrl: markerShadow,
+                    // shadowSize: [41, 41],
+                    // shadowAnchor: [13, 41]
                 });
 
                 // --- SOCKET RECEIVE LOCATION MARKER LOGIC ---
@@ -130,21 +134,13 @@ export default function Home() {
                         markersRef.current[id] = L.marker([latitude, longitude], { icon: customIcon }).addTo(mapRef.current);
                     }
                 });
-                
+                // socket.on("dis")
+                // --- END SOCKET LOGIC ---
             }
         };
 
         loadMap();
 
-        
-        // Cleanup on unmount
-        return () => {
-            socket.off("receive-location");
-            if (mapRef.current) {
-                mapRef.current.remove();
-                mapRef.current = null;
-            }
-        };
     }, []);
 
     return (
@@ -157,10 +153,10 @@ export default function Home() {
             {/* Profile Section - 20% */}
             <div className="w-[20%] bg-white border-l p-4 overflow-y-auto">
                 <ProfileSection
-                    userName= {username}
+                    userName={username}
                     onConnectShare={handleConnectShare}
                     onSavedLocations={handleSavedLocations}
-                    onLocationHistory={handleLocationHistory}
+                    onLocationHistory={() => router.push("/Home/lochistory")}
                     onSettings={handleSettings}
                     onLogout={handleLogout}
                     onProfileClick={handleProfileClick}

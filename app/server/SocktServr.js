@@ -21,21 +21,25 @@ io.on("connection", (socket) => {
         });
     });
 
-    socket.on("Userlastlocation", (data) => {
-        const { userId, latitude, longitude } = data;
+    // socket.on("Userlastlocation", (data) => {
+    //     const { userId, latitude, longitude } = data;
 
-        const timestamp = new Date().toISOString(); // e.g. "2025-07-15T14:00:00Z"
+    //     const timestamp = new Date().toISOString(); // e.g. "2025-07-15T14:00:00Z"
 
-        // Store in your DB — you need to define this function
-        saveToDatabase(userId, {
-            latitude,
-            longitude,
-            timestamp
-        });
-    });
+    //     // Store in your DB — you need to define this function
+    //     saveToDatabase(userId, {
+    //         latitude,
+    //         longitude,
+    //         timestamp
+    //     });
+    // });
 
     socket.on("disconnect", () => {
         connectedUsers.delete(socket.id);
         console.log("Disconnected:", socket.id);
     });
+});
+const port = 3001;
+server.listen(port, () => {
+    console.log(`Socket server running on port ${port}`);
 });
