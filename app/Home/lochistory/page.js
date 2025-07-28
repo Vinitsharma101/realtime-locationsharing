@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 import { db, auth } from '@/lib/firebaseconfig';
 import { collection, addDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
 import BackButton from '@/app/components/Backbutton';
 
 const LocationHistoryPage = () => {
@@ -14,7 +13,6 @@ const LocationHistoryPage = () => {
     const mapInstanceRef = useRef(null);
     const leafletRef = useRef(null); // Store Leaflet module
     const customIconRef = useRef(null); // Store custom icon
-    const router = useRouter();
 
 
     // 🔁 Auth & realtime updates

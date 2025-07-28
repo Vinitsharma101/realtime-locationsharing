@@ -9,7 +9,7 @@ import ProfileSection from '../components/ProfileSection';
 import { socket } from '../../lib/socket';
 
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "@/lib/firebaseconfig";
 
 const Markericonn = '/marker.svg'; // Path relative to public/
@@ -21,10 +21,11 @@ export default function Home() {
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    setUsername(userDoc.data().name || "Unnamed User");
-                }
+                const userDoc = onSnapshot(doc(db, "users", user.uid), (doc) => {
+                    if (doc.exists()) {
+                        setUsername(doc.data().name || "Unnamed User");
+                    }
+                });
             }
         });
 
@@ -119,10 +120,7 @@ export default function Home() {
                     iconRetinaUrl: Markericonn,
                     iconSize: [40, 40],
                     iconAnchor: [20, 40],
-                    popupAnchor: [0, -40],
-                    // shadowUrl: markerShadow,
-                    // shadowSize: [41, 41],
-                    // shadowAnchor: [13, 41]
+                    popupAnchor: [0, -40]
                 });
 
                 // --- SOCKET RECEIVE LOCATION MARKER LOGIC ---
@@ -134,8 +132,6 @@ export default function Home() {
                         markersRef.current[id] = L.marker([latitude, longitude], { icon: customIcon }).addTo(mapRef.current);
                     }
                 });
-                // socket.on("dis")
-                // --- END SOCKET LOGIC ---
             }
         };
 

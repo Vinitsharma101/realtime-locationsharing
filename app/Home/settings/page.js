@@ -12,6 +12,7 @@ import {
     LogOut,
     ChevronRight
 } from 'lucide-react';
+import BackButton from '@/app/components/Backbutton';
 
 const Settings = () => {
     const settingsItems = [
@@ -76,6 +77,7 @@ const Settings = () => {
                 <h1 className="text-4xl font-bold text-center mb-6 bg-gradient-to-r from-teal-600 to-purple-600 bg-clip-text text-transparent">
                     Settings
                 </h1>
+                <BackButton />
                 <p className="text-center text-gray-600 mb-10">Control your preferences and app experience</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
