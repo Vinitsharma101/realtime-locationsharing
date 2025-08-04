@@ -2,7 +2,7 @@
 
 
 'use client'
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { useState, useEffect, useRef } from 'react'
 import ProfileSection from '../components/ProfileSection';
@@ -14,9 +14,13 @@ import { auth, db } from "@/lib/firebaseconfig";
 
 const Markericonn = '/marker.svg'; // Path relative to public/
 
+
 export default function Home() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [username, setUsername] = useState("");
+    const mapRef = useRef(null);
+    const markersRef = useRef({}); // Store markers by socket id
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, async (user) => {
@@ -28,13 +32,11 @@ export default function Home() {
                 });
             }
         });
-
         return () => unsub();
     }, []);
 
     const handleConnectShare = () => {
-        console.log("Connect/Share Location clicked")
-        // Implement your location sharing logic here
+        router.push("/Home/connectuser")
     }
 
     const handleSavedLocations = () => {
@@ -43,8 +45,6 @@ export default function Home() {
     }
 
     const handleSettings = () => {
-        console.log("Settings clicked")
-        // Open settings modal or navigate to settings page
         router.push("/Home/settings");
     }
 
@@ -61,14 +61,11 @@ export default function Home() {
         console.log("Profile clicked")
         // Handle profile dropdown toggle
     }
-    const mapRef = useRef(null);
-    const markersRef = useRef({}); // Store markers by socket id
 
     useEffect(() => {
-
-
         let leaflet;
         let markerShadow, L;
+        const focusUserId = searchParams.get("focus");
 
         const loadMap = async () => {
             if (typeof window !== 'undefined') {
@@ -93,7 +90,24 @@ export default function Home() {
                     }).addTo(mapRef.current);
                 }
 
-                if (navigator.geolocation) {
+                // If focus param is present, show a static marker and center map
+                if (focusUserId) {
+                    const staticLat = 28.6139; // Delhi
+                    const staticLng = 77.2090;
+                    mapRef.current.setView([staticLat, staticLng], 15);
+                    const staticMarker = L.marker([staticLat, staticLng], {
+                        icon: L.icon({
+                            iconUrl: Markericonn,
+                            iconRetinaUrl: Markericonn,
+                            iconSize: [40, 40],
+                            iconAnchor: [20, 40],
+                            popupAnchor: [0, -40]
+                        })
+                    }).addTo(mapRef.current);
+                    staticMarker.bindPopup("Focused User").openPopup();
+                }
+
+                if (!focusUserId && navigator.geolocation) {
                     navigator.geolocation.watchPosition(
                         (position) => {
                             const { longitude, latitude } = position.coords;
@@ -137,7 +151,7 @@ export default function Home() {
 
         loadMap();
 
-    }, []);
+    }, [searchParams]);
 
     return (
         <div className="flex h-screen">
@@ -159,5 +173,5 @@ export default function Home() {
                 />
             </div>
         </div>
-    )
+    );
 }
