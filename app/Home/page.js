@@ -23,16 +23,42 @@ export default function Home() {
     const markersRef = useRef({}); // Store markers by socket id
 
     useEffect(() => {
-        const unsub = onAuthStateChanged(auth, async (user) => {
+        let unsubscribeSnapshot = null;
+        const unsubAuth = onAuthStateChanged(auth, (user) => {
             if (user) {
-                const userDoc = onSnapshot(doc(db, "users", user.uid), (doc) => {
-                    if (doc.exists()) {
-                        setUsername(doc.data().name || "Unnamed User");
+                // If there's an existing snapshot listener, clean it up first
+                if (unsubscribeSnapshot) {
+                    unsubscribeSnapshot();
+                    unsubscribeSnapshot = null;
+                }
+
+                unsubscribeSnapshot = onSnapshot(
+                    doc(db, "users", user.uid),
+                    (docSnap) => {
+                        if (docSnap && docSnap.exists()) {
+                            setUsername(docSnap.data().name || "Unnamed User");
+                        } else {
+                            setUsername("Unnamed User");
+                        }
+                    },
+                    (error) => {
+                        console.error("onSnapshot (user doc) error:", error);
                     }
-                });
+                );
+            } else {
+                // user signed out — remove any snapshot listener and clear state
+                if (unsubscribeSnapshot) {
+                    unsubscribeSnapshot();
+                    unsubscribeSnapshot = null;
+                }
+                setUsername("");
             }
         });
-        return () => unsub();
+
+        return () => {
+            if (unsubscribeSnapshot) unsubscribeSnapshot();
+            unsubAuth();
+        };
     }, []);
 
     const handleConnectShare = () => {

@@ -17,28 +17,46 @@ const LocationHistoryPage = () => {
 
     // 🔁 Auth & realtime updates
     useEffect(() => {
+        let unsubscribeSnapshot = null;
         const unsubAuth = onAuthStateChanged(auth, (user) => {
-            if (!user) return;
+            if (!user) {
+                if (unsubscribeSnapshot) {
+                    unsubscribeSnapshot();
+                    unsubscribeSnapshot = null;
+                }
+                setMarkers([]);
+                return;
+            }
 
-            const unsubSnapshot = onSnapshot(
+            // Cleanup any previous snapshot listener before creating a new one
+            if (unsubscribeSnapshot) {
+                unsubscribeSnapshot();
+                unsubscribeSnapshot = null;
+            }
+
+            unsubscribeSnapshot = onSnapshot(
                 collection(db, 'users', user.uid, 'locationHistory'),
                 (snapshot) => {
-                    const data = snapshot.docs.map((doc) => {
-                        const d = doc.data();
+                    const data = snapshot.docs.map((d) => {
+                        const docData = d.data();
                         return {
-                            lat: d.latitude,
-                            lng: d.longitude,
-                            time: new Date(d.timestamp).toLocaleTimeString(),
+                            lat: docData.latitude,
+                            lng: docData.longitude,
+                            time: new Date(docData.timestamp).toLocaleTimeString(),
                         };
                     });
                     setMarkers(data.reverse());
+                },
+                (error) => {
+                    console.error('onSnapshot (locationHistory) error:', error);
                 }
             );
-
-            return () => unsubSnapshot();
         });
 
-        return () => unsubAuth();
+        return () => {
+            if (unsubscribeSnapshot) unsubscribeSnapshot();
+            unsubAuth();
+        };
     }, []);
 
     // ⏱ Save location every hour
